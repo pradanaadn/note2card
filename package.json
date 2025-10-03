@@ -2,16 +2,16 @@
   "name": "note2card",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/mastra/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "mastra dev",
+    "dev": "nodemon --exec 'mastra dev' --ext ts,js,json",
+    "express:dev": "nodemon --exec 'tsx src/mastra/index.ts' --ext ts,js,json --watch src --watch mastra.config.ts",
     "build": "mastra build",
     "start": "mastra start",
     "compose:start": "docker compose up -d ",
     "compose:down": "docker compose down ",
     "compose:restart": "docker compose down && docker compose up -d"
-
   },
   "keywords": [],
   "author": "",
@@ -26,11 +26,18 @@
     "@mastra/libsql": "^0.15.0",
     "@mastra/loggers": "^0.10.14",
     "@mastra/memory": "^0.15.4",
+    "express": "^5.1.0",
+    "multer": "^2.0.2",
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/multer": "^2.0.0",
     "@types/node": "^24.6.2",
     "mastra": "^0.13.4",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   }
 }
