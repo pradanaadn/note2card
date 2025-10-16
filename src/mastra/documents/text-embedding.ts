@@ -7,7 +7,7 @@ import { config } from "dotenv";
 
 config();
 
-enum TextType {
+export enum TextType {
   MD = "text",
   TEXT = "image",
   HTML = "html",
@@ -73,9 +73,9 @@ export class GeminiTextEmbedding {
   }
 }
 
-const embedding = new GeminiTextEmbedding("gemini-embedding-001");
-const chunkDocuments = await embedding.chunkingText(
-  "Hello, world",
-  TextType.TEXT,
-);
-const embedDocuments = await embedding.embedText(chunkDocuments);
+// const embedding = new GeminiTextEmbedding("gemini-embedding-001");
+// const chunkDocuments = await embedding.chunkingText(
+//   "Hello, world",
+//   TextType.TEXT,
+// );
+// const embedDocuments = await embedding.embedText(chunkDocuments);

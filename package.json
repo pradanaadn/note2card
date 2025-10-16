@@ -2,10 +2,10 @@
   "name": "note2card",
   "version": "1.0.0",
   "description": "",
-  "main": "src/mastra/index.ts",
+  "main": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --exec 'mastra dev' --ext ts,js,json",
+    "dev": "mastra dev",
     "express:dev": "nodemon --exec 'tsx src/index.ts' --ext ts,js,json --watch src --watch mastra.config.ts",
     "build": "mastra build",
     "start": "mastra start",

@@ -1,11 +1,24 @@
 import express, { Request, Response } from "express";
 import { mastra } from "./mastra";
-
+import {
+  TextType,
+  GeminiTextEmbedding,
+} from "./mastra/documents/text-embedding";
 const app = express();
 const port = 3456;
+const embedding = new GeminiTextEmbedding("gemini-embedding-001");
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello, world!");
+});
+
+app.post("/api/note", async (req: Request, res: Response) => {
+  const { title, content, topic } = req.body;
+  const chunkDocuments = await embedding.chunkingText(content, TextType.TEXT);
+  const embeddingResult = await embedding.embedText(chunkDocuments);
+  res.send(embeddingResult);
 });
 
 app.get("/api/weather", async (req: Request, res: Response) => {
