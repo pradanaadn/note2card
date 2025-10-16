@@ -1,5 +1,7 @@
 import * as z from "zod";
-import "dotenv/config";
+import { config } from "dotenv";
+import "process";
+config();
 
 type llm = {
   GOOGLE_GENERATIVE_AI_API_KEY: string;
