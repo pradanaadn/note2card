@@ -2,7 +2,7 @@ import { QdrantVector } from "@mastra/qdrant";
 import { QueryResult } from "@mastra/core/vector";
 import { v4 as uuidv4, validate as uuidValidate } from "uuid";
 import logger from "@/logger";
-
+import { deterministicIdFromDoc } from "@/utils";
 type VectorStoreMetrics = "cosine" | "euclidean" | "dotproduct" | undefined;
 
 export class VectorStore {
@@ -38,20 +38,13 @@ export class VectorStore {
     collectionName: string,
     vectors: number[][],
     metadata?: Record<string, number | string | boolean>[],
-    ids?: string[] | number[],
   ) {
-    const stringIds: string[] = vectors.map((_, idx) => {
-      const provided =
-        ids && ids[idx] !== undefined && ids[idx] !== null
-          ? String(ids[idx])
-          : undefined;
-      if (provided && uuidValidate(provided)) {
-        logger.debug(`Provided ID ${provided} is valid`);
-        return provided;
-      }
-      logger.debug(`Generated ID ${uuidv4()} for document`);
-      return uuidv4();
-    });
+    const stringIds = vectors.map((vector, i) =>
+      deterministicIdFromDoc({ vector: vector }),
+    );
+    logger.info(
+      `Adding ${vectors.length} documents to collection ${collectionName}`,
+    );
     await this.client.upsert({
       indexName: collectionName,
       vectors: vectors,
@@ -73,6 +66,29 @@ export class VectorStore {
       filter: filter,
     });
     return result;
+  }
+}
+
+export class VectorStoreSingleton {
+  private static instance: VectorStore | null = null;
+
+  public static getInstance(
+    url: string,
+    apiKey: string,
+    secure: boolean,
+  ): VectorStore {
+    if (!VectorStoreSingleton.instance) {
+      logger.info("Initializing VectorStoreSingleton");
+      VectorStoreSingleton.instance = new VectorStore(url, apiKey, secure);
+      logger.info("VectorStoreSingleton initialized");
+    }
+    logger.info("VectorStoreSingleton instance retrieved");
+    return VectorStoreSingleton.instance;
+  }
+
+  public static setInstance(store: VectorStore) {
+    logger.info("Setting VectorStoreSingleton instance");
+    VectorStoreSingleton.instance = store;
   }
 }
 

@@ -1,18 +1,19 @@
 import express, { Request, Response } from "express";
-import { mastra } from "./mastra";
+import { mastra } from "@/mastra";
 import {
   TextType,
   GeminiTextEmbedding,
 } from "@/mastra/documents/text-embedding";
 import { appConfig } from "@/config";
-import { VectorStore } from "@/mastra/db/vector-store";
+import { VectorStoreSingleton } from "@/mastra/db/vector-store";
 import logger from "@/logger";
 
 const app = express();
 const port = 3456;
 
 const embedding = new GeminiTextEmbedding("gemini-embedding-001");
-const vectorStore = new VectorStore(
+
+const vectorStore = VectorStoreSingleton.getInstance(
   `${appConfig.qdrant.BASE_URL}:${appConfig.qdrant.HTTP_PORT}`,
   appConfig.qdrant.API_KEY,
   false,
@@ -45,28 +46,9 @@ app.post("/api/note", async (req: Request, res: Response) => {
     appConfig.qdrant.COLLECTION_NAME,
     vector,
     metadata,
-    list_id,
   );
 
   res.send(metadata);
-});
-
-app.get("/api/weather", async (req: Request, res: Response) => {
-  const { city } = req.query as { city?: string };
-
-  if (!city) {
-    return res.status(400).send("Missing 'city' query parameter");
-  }
-
-  const agent = mastra.getAgent("weatherAgent");
-
-  try {
-    const result = await agent.generate(`What's the weather like in ${city}?`);
-    res.send(result.text);
-  } catch (error) {
-    console.error("Agent error:", error);
-    res.status(500).send("An error occurred while processing your request");
-  }
 });
 
 app.listen(port, () => {
