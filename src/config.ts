@@ -1,6 +1,7 @@
 import * as z from "zod";
 import { config } from "dotenv";
 import "process";
+
 config();
 
 type llm = {
@@ -12,6 +13,8 @@ type qdrant = {
   LOG_LEVEL: string;
   HTTP_PORT: number | string;
   GRPC_PORT: number | string;
+  COLLECTION_NAME: string;
+  BASE_URL: string;
 };
 
 type config = {
@@ -29,7 +32,7 @@ export const appConfig: config = {
     LOG_LEVEL: process.env.QDRANT_LOG_LEVEL || "info",
     HTTP_PORT: process.env.QDRANT_HTTP_PORT || 6335,
     GRPC_PORT: process.env.QDRANT_GRPC_PORT || 6334,
+    COLLECTION_NAME: process.env.COLLECTION_NAME || "note",
+    BASE_URL: process.env.QDRANT_BASE_URL || "localhost",
   },
 };
-
-console.log(appConfig);

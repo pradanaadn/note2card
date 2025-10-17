@@ -9,7 +9,10 @@
     "skipLibCheck": true,
     "noEmit": true,
     "outDir": "dist",
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "@/*": ["./src/*"] // map imports that start with @/ to src/
+    }
   },
   "include": ["src/**/*"]
 }

@@ -3,10 +3,22 @@ import { mastra } from "./mastra";
 import {
   TextType,
   GeminiTextEmbedding,
-} from "./mastra/documents/text-embedding";
+} from "@/mastra/documents/text-embedding";
+import { appConfig } from "@/config";
+import { VectorStore } from "@/mastra/db/vector-store";
+import logger from "@/logger";
+
 const app = express();
 const port = 3456;
+
 const embedding = new GeminiTextEmbedding("gemini-embedding-001");
+const vectorStore = new VectorStore(
+  `${appConfig.qdrant.BASE_URL}:${appConfig.qdrant.HTTP_PORT}`,
+  appConfig.qdrant.API_KEY,
+  false,
+);
+
+await vectorStore.createCollection(appConfig.qdrant.COLLECTION_NAME);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -17,8 +29,26 @@ app.get("/", (req: Request, res: Response) => {
 app.post("/api/note", async (req: Request, res: Response) => {
   const { title, content, topic } = req.body;
   const chunkDocuments = await embedding.chunkingText(content, TextType.TEXT);
+
+  const list_id = chunkDocuments.getDocs().map((doc) => doc.id_);
+  const metadata: { text: string; title: string; topic: string }[] =
+    chunkDocuments.getDocs().map((doc) => ({
+      text: doc.text,
+      title,
+      topic,
+    }));
+
   const embeddingResult = await embedding.embedText(chunkDocuments);
-  res.send(embeddingResult);
+  const vector = embeddingResult.embeddings;
+
+  await vectorStore.addDocuments(
+    appConfig.qdrant.COLLECTION_NAME,
+    vector,
+    metadata,
+    list_id,
+  );
+
+  res.send(metadata);
 });
 
 app.get("/api/weather", async (req: Request, res: Response) => {
